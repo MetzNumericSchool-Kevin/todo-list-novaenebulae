@@ -1,67 +1,46 @@
-type TodoItem = {
-    id: number,
-    description: string
-    done: boolean
+import { useState } from "react";
+import { ItemInput } from "./ItemInput";
+import { TodoItem } from "./TodoItem";
+
+interface TodoItem {
+	id: number;
+	description: string;
+	done: boolean;
 }
 
+
 export function TodoApp() {
-    return (
-        <>
-            <div className="flex">
+	let items = [
+		{ id: 1, description: "Acheter des oranges", done: false },
+		{ id: 2, description: "Courir avec le fraté", done: true },
+	];
 
-                <label className="input input-bordered flex items-center gap-2">
-                    <input type="text" className="grow" placeholder="Ajouter une tâche" />
-                </label>
+	const [itemList, setItemList] = useState<TodoItem[]>(items);
 
-                <button className="btn btn-primary">+</button>
+	const sortedItemList = [...itemList].sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
 
-            </div>
+	const setDone = (id: number) => {
+		setItemList(itemList.map((item) => (item.id === id ? { ...item, done: !item.done } : item)));
+	};
 
-            <div className="my-5 flex-column gap-5 w-full text-left">
-                {/* TODO ITEM version normal */}
-                <div className="bg-indigo-700 w-full m-5 rounded-box p-3 flex">
-                    <span className="pr-8">
-                        <input type="checkbox" className="checkbox" />
-                    </span>
-                    <span className="flex-grow">
-                        Acheter des oranges
-                    </span>
-                    <div>
-                        <button className="btn btn-error btn-outline btn-xs">
-                            X
-                        </button>
-                    </div>
-                </div>
+	const deleteTask = (id: number) => {
+		setItemList(itemList.filter((item) => item.id !== id));
+	};
 
-                {/* TODO Item version cochée */}
-                <div className="bg-indigo-900 w-full m-5 rounded-box p-3 flex">
-                    <span className="pr-8">
-                        <input type="checkbox" checked={true} className="checkbox" />
-                    </span>
-                    <span className="flex-grow line-through">
-                        Courir avec le fraté
-                    </span>
-                    <div>
-                        <button className="btn btn-error btn-outline btn-xs">
-                            X
-                        </button>
-                    </div>
-                </div>
+	const addTask = (description: string) => {
+		setItemList([...itemList, { id: itemList[itemList.length - 1].id + 1, description, done: false }]);
+	};
 
-                <div className="bg-indigo-900 w-full m-5 rounded-box p-3 flex">
-                    <span className="pr-8">
-                        <input type="checkbox" checked={true} className="checkbox" />
-                    </span>
-                    <span className="flex-grow line-through">
-                        Me faire défoncer à LoL
-                    </span>
-                    <div>
-                        <button className="btn btn-error btn-outline btn-xs">
-                            X
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </>
-    )
+
+	return (
+		<>
+			<ItemInput onAdd={addTask}/>
+
+			<div className="my-5 flex-column gap-5 w-full text-left">
+				{sortedItemList.map((item) => (
+					<TodoItem key={item.id} description={item.description} done={item.done} id={item.id} onSetDone={setDone} onDelete={deleteTask}/>
+				))}
+			</div>
+		</>
+	);
 }
